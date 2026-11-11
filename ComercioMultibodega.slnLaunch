@@ -1,0 +1,19 @@
+[
+  {
+    "Name": "Comercio multibodega",
+    "Projects": [
+      {
+        "Path": "Catalogo.Api\\Catalogo.Api.csproj",
+        "Action": "StartWithoutDebugging"
+      },
+      {
+        "Path": "Inventario.Api\\Inventario.Api.csproj",
+        "Action": "StartWithoutDebugging"
+      },
+      {
+        "Path": "Pedidos.Api\\Pedidos.Api.csproj",
+        "Action": "StartWithoutDebugging"
+      }
+    ]
+  }
+]

@@ -1,0 +1,472 @@
+{
+  "info": {
+    "name": "AD01 Comercio Multibodega",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "catalogo",
+      "value": "http://localhost:5101"
+    },
+    {
+      "key": "inventario",
+      "value": "http://localhost:5102"
+    },
+    {
+      "key": "pedidos",
+      "value": "http://localhost:5103"
+    }
+  ],
+  "item": [
+    {
+      "name": "Crear categoría",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{catalogo}}/api/categorias",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Periféricos\",\n  \"descripcion\": \"Accesorios\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if (pm.response.code === 201) pm.collectionVariables.set(\"categoria\", pm.response.json().idCategoria);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Crear marca",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{catalogo}}/api/marcas",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Marca demo\",\n  \"paisOrigen\": \"Ecuador\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if (pm.response.code === 201) pm.collectionVariables.set(\"marca\", pm.response.json().idMarca);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Crear producto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{catalogo}}/api/productos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"idCategoria\": {{categoria}},\n  \"idMarca\": {{marca}},\n  \"nombre\": \"Teclado\",\n  \"sku\": \"TEC-{{$guid}}\",\n  \"precio\": 25.5\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if (pm.response.code === 201) pm.collectionVariables.set(\"producto\", pm.response.json().idProducto);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultar producto",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{catalogo}}/api/productos/{{producto}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Crear bodega",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{inventario}}/api/bodegas",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Central\",\n  \"ciudad\": \"Quito\",\n  \"direccion\": \"Av. Central\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if (pm.response.code === 201) pm.collectionVariables.set(\"bodega\", pm.response.json().idBodega);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Registrar entrada",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{inventario}}/api/movimientos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"idProducto\": {{producto}},\n  \"idBodega\": {{bodega}},\n  \"tipo\": \"Entrada\",\n  \"cantidad\": 10\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reservar stock",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{inventario}}/api/reservas",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"idProducto\": {{producto}},\n  \"idBodega\": {{bodega}},\n  \"cantidad\": 3\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if (pm.response.code === 201) pm.collectionVariables.set(\"reserva\", pm.response.json().idReserva);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultar disponibilidad",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{inventario}}/api/existencias/{{bodega}}/{{producto}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Stock 10 y disponible 7\", () => { const datos = pm.response.json(); pm.expect(datos.stock).to.eql(10); pm.expect(datos.disponible).to.eql(7); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rechazar salida de stock reservado",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{inventario}}/api/movimientos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"idProducto\": {{producto}},\n  \"idBodega\": {{bodega}},\n  \"tipo\": \"Salida\",\n  \"cantidad\": 8\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Liberar reserva",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": "{{inventario}}/api/reservas/{{reserva}}/liberar"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Registrar cliente",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{pedidos}}/api/clientes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombres\": \"Cliente de prueba\",\n  \"cedula\": \"{{cedulaDemo}}\",\n  \"correo\": \"demo@example.com\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set(\"cedulaDemo\", String(Date.now()).slice(-10));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if (pm.response.code === 201) pm.collectionVariables.set(\"cliente\", pm.response.json().idCliente);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rechazar pedido sin detalles",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{pedidos}}/api/pedidos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"idCliente\": {{cliente}},\n  \"idBodega\": {{bodega}},\n  \"detalles\": []\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rechazar producto inexistente",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{pedidos}}/api/pedidos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"idCliente\": {{cliente}},\n  \"idBodega\": {{bodega}},\n  \"detalles\": [\n    {\n      \"idProducto\": 2147483647,\n      \"cantidad\": 1\n    }\n  ]\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rechazar pedido con stock insuficiente",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{pedidos}}/api/pedidos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"idCliente\": {{cliente}},\n  \"idBodega\": {{bodega}},\n  \"detalles\": [\n    {\n      \"idProducto\": {{producto}},\n      \"cantidad\": 11\n    }\n  ]\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Crear pedido",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{pedidos}}/api/pedidos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"idCliente\": {{cliente}},\n  \"idBodega\": {{bodega}},\n  \"detalles\": [\n    {\n      \"idProducto\": {{producto}},\n      \"cantidad\": 2\n    }\n  ]\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if (pm.response.code === 201) pm.collectionVariables.set(\"pedido\", pm.response.json().idPedido);",
+              "pm.test(\"Total calculado desde catálogo\", () => pm.expect(pm.response.json().total).to.eql(51));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultar pedido",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{pedidos}}/api/pedidos/{{pedido}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cancelar pedido",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": "{{pedidos}}/api/pedidos/{{pedido}}/cancelar"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Pedido cancelado\", () => pm.expect(pm.response.json().estado).to.eql(\"Cancelado\"));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
